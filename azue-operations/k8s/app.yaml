@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23.2-alpine
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
+      - name: az
+        image: mcr.microsoft.com/azure-cli:2.42.0
+        command: 
+          - /bin/bash
+          - -c
+        args:
+          - |
+            echo Unable to list secrets in key vault > /data/index.html
+            while ! curl --max-time 5 -H 'Metadata: true'  http://169.254.169.254/metadata/identity/oauth2/token/?resource=https://vault.azure.net; do
+              sleep 4
+            done
+            while ! az login --identity; do
+              sleep 4
+            done
+            while [ 1 -eq 1 ]; do
+              az keyvault secret list --vault-name {vaultname} > /data/index.html
+              sleep 4
+            done
+
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: webapp
+  name: webapp
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: webapp
+  type: LoadBalancer
