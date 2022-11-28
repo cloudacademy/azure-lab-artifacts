@@ -4,5 +4,5 @@ metadata:
   name: app-id
 spec:
   type: 0
-  ResourceID: /subscriptions/{subid}/resourcegroups/{rg}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{mid}
-  ClientID: {clientid}
+  resourceID: /subscriptions/{subid}/resourcegroups/{rg}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{mid}
+  clientID: {clientid}
