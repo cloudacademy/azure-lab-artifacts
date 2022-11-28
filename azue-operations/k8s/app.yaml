@@ -40,7 +40,7 @@ spec:
             done
             while [ 1 -eq 1 ]; do
               az keyvault secret list --vault-name {vaultname} > /data/index.html
-              sleep 4
+              sleep 3600
             done
 
         volumeMounts:
